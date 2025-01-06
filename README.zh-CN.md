@@ -38,7 +38,9 @@
 使用本代码片段，可以用以下两种语法：
 
 - Inline 语法（就一 HTML 标签，加上 "sidenote" 类）
-```<span class=sidenote> text here </span>```
+```
+<span class=sidenote> text here </span>
+```
 - Block 语法（是对 obsidian Callout 语法的 hack ，使用特殊的 "sidenote" callout-type ，灵感来自于 [FireIsGood](https://github.com/r-u-s-h-i-k-e-s-h/Obsidian-CSS-Snippets/blob/Collection/Snippets/Sidenote%20callout%2002.md)）
 ```
 > [!sidenote]
@@ -48,7 +50,9 @@
 用例：
 
 - Inline 语法
-```May the force be with you<sup>[1]</sup><span class=sidenote> $^1$ See [[Author]], _Book Name_. <br/>![](https://url/to/image.jpg) </span>```
+```
+May the force be with you<sup>[1]</sup><span class=sidenote> $^1$ See [[Author]], _Book Name_. <br/>![](https://url/to/image.jpg) </span>
+```
 - Block 语法
 ```
 > [!sidenote]

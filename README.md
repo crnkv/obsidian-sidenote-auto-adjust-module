@@ -40,7 +40,9 @@ This `Sidenote in Tufte-style using SAAM.css` simplifies and adopts the approach
 To write a sidenote, this snippet provides two syntaxes:
 
 - Inline syntax (HTML tag with a custom "sidenote" class)
-```<span class=sidenote> text here </span>```
+```
+<span class=sidenote> text here </span>
+```
 - Block syntax (a hack of obsidian Callout syntax with a custom "sidenote" callout-type, inspired by [FireIsGood](https://github.com/r-u-s-h-i-k-e-s-h/Obsidian-CSS-Snippets/blob/Collection/Snippets/Sidenote%20callout%2002.md))
 ```
 > [!sidenote]
@@ -50,7 +52,9 @@ To write a sidenote, this snippet provides two syntaxes:
 Examples:
 
 - Inline syntax
-```May the force be with you<sup>[1]</sup><span class=sidenote> $^1$ See [[Author]], _Book Name_. <br/>![](https://url/to/image.jpg) </span>```
+```
+May the force be with you<sup>[1]</sup><span class=sidenote> $^1$ See [[Author]], _Book Name_. <br/>![](https://url/to/image.jpg) </span>
+```
 - Block syntax
 ```
 > [!sidenote]
