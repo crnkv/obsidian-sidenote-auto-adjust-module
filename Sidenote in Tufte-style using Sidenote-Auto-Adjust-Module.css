@@ -1,0 +1,142 @@
+/* Sidenote in Tufte-style using Sidenote-Auto-Adjust-Module.css */
+/* author: cerenkov */
+/* Sidenote in Tufte-style CSS snippet works on its own, but by enabling Sidenote-Auto-Adjust-Module.css, it unleashes its full potential of auto-width and positioning features */
+/*
+  This CSS snippet provides two syntaxes for generating Tufte-style sidenotes:
+    * inline syntax
+        <span class=sidenote> text here </span>
+    * block syntax
+        > [!sidenote]
+        > text here
+  Inspired by Tufte-CSS https://edwardtufte.github.io/tufte-css/ , but indifferentiate Tufte "sidenote"s and "marginnote"s, i.e. disable auto-numbering,
+  because explicit numbering has better raw-text readability, and reduces HTML code usages compared to Tufte-CSS, example:
+        May the force be with you<sup>[1]</sup><span class=sidenote> $^1$ See [[Author]], _Book Name_. <br/>![](https://url/to/image.jpg) </span>
+  The block syntax is inspired by https://github.com/r-u-s-h-i-k-e-s-h/Obsidian-CSS-Snippets/blob/Collection/Snippets/Sidenote%20callout%2002.md , example:
+        > [!sidenote]
+        > $^1$ See [[Author]], _Book Name_.
+        > ![](https://url/to/image.jpg)
+        > 
+        > - list item
+        >
+        > | table cell | table cell |
+        > | ---------- | ---------- |
+        > | table cell | table cell |
+        (empty line)
+        May the force be with you<sup>[1]</sup>
+  Both syntaxes generate simplistic small-fontsize no-bakground sidenotes in both Live Preview mode and Reading mode, but the inline syntax is limited compared to the block syntax since it:
+    * uses <br/> for line-break but cannot contain multiline markdown features like tables, lists and code blocks, and
+    * renders inline markdowns only in Reading mode (not in Live Preview mode).
+  The benefit of the inline syntax is that it generates sidenotes that are precisely positioned/aligned to the referring line, whereas the block syntax is not precise and can only align with the first line of the next paragraph.
+  As for raw-text readability, the inline syntax is more meaningful for it relates the sidenote content with its anchor label, whereas the block syntax is simply a callout hack and is expected to be read and understood as such.
+  There are auto-width and positioning features when the Sidenote Auto-Adjust Module is enabled. Check the module for documentations.
+  Each syntax have three variants for right, left and default:
+    * <span class=sidenote-r>  <span class=sidenote-l>  <span class=sidenote>
+    * >[!sidenote-r]           >[!sidenote-l]           >[!sidenote]
+  where the default position is determined by the variable --sidenote-default-position,
+  except that the Sidenote Auto-Adjust Module (when enabled) will override it, and switch left/right automatically depending on the document is rightsided/leftsided.
+*/
+
+/* styling part */
+
+/* [!sidenote] callouts: strip away default callout styles and the edit button */
+.callout[data-callout|="sidenote"] {
+    .callout-title {
+        display: none;
+    }
+    --p-spacing: 0;
+    margin-block: 0;
+    background-color: transparent;
+    padding: unset;
+}
+.cm-callout:has(.callout[data-callout|="sidenote"]) > .edit-block-button {
+    display: none;
+}
+/* need higher specificity to override obsidian app's !important property */
+.markdown-source-view.mod-cm6 .cm-content > .cm-callout[contenteditable=false]:has(.callout[data-callout|="sidenote"]) {
+    overflow: visible;
+    contain: none !important;
+}
+/* extra shift in Live Preview mode due to callouts syntax requiring an extra empty line */
+.markdown-source-view .callout[data-callout|="sidenote"] {
+    margin-top: 2.1em;
+}
+
+/* Tufte-style means smaller font-size, minimal margins and paddings, whereas Callout-style inherits normal font-size and broader paddings */
+.sidenote, .sidenote-r, .sidenote-l, .callout[data-callout|="sidenote"] {
+    margin-top: 0.3em;
+    margin-bottom: 0;
+/*  Tufte-CSS sets a sidenote font-size 0.786 of the paragraph font-size, but since obsidian default article font-size is already much smaller than Tufte, even smaller sidenotes would be uncomfortable, so I make it a bit larger, say, 0.82 */
+    font-size: 0.82em;
+    line-height: 1.3;
+    vertical-align: baseline;
+}
+
+/* positioning part */
+
+.markdown-preview-view, .markdown-source-view {
+    .sidenote-r, .callout[data-callout="sidenote-r"] {
+        position: relative;
+        float: right;
+        clear: right;
+        @container not style(--sidenote-edgeout) {
+            width: var(--sidenote-width);
+            margin-inline: var(--sidenote-margins-r-non-intrusive);
+        }
+        @container style(--sidenote-edgeout) {
+            max-width: var(--sidenote-width);
+            margin-inline: var(--sidenote-margins-r-intrusive);
+        }
+    }
+
+    .sidenote-l, .callout[data-callout="sidenote-l"] {
+        position: relative;
+        float: left;
+        clear: left;
+        @container not style(--sidenote-edgeout) {
+            width: var(--sidenote-width);
+            margin-inline: var(--sidenote-margins-l-non-intrusive);
+        }
+        @container style(--sidenote-edgeout) {
+            max-width: var(--sidenote-width);
+            margin-inline: var(--sidenote-margins-l-intrusive);
+        }
+    }
+
+    .sidenote, .callout[data-callout="sidenote"] {
+        position: relative;
+        float: var(--sidenote-default-position);
+        clear: var(--sidenote-default-position);
+        @container not style(--sidenote-edgeout) {
+            width: var(--sidenote-width);
+            @container style(--sidenote-default-position: right) {
+                margin-inline: var(--sidenote-margins-r-non-intrusive);
+            }
+            @container style(--sidenote-default-position: left) {
+                margin-inline: var(--sidenote-margins-l-non-intrusive);
+            }
+        }
+        @container style(--sidenote-edgeout) {
+            max-width: var(--sidenote-width);
+            @container style(--sidenote-default-position: right) {
+                margin-inline: var(--sidenote-margins-r-intrusive);
+            }
+            @container style(--sidenote-default-position: left) {
+                margin-inline: var(--sidenote-margins-l-intrusive);
+            }
+        }
+    }
+}
+
+/* fallback values part (when not working with the Sidenote Auto-Adjust Module) */
+/* these lines can be deleted if it's assured to be working with the Sidenote Auto-Adjust Module */
+:root {
+    --sidenote-default-position: right;
+    --sidenote-width: 15rem;
+    --sidenote-margin: 1rem;
+    --sidenote-edgeout: unset;
+    --sidenote-margins-r-non-intrusive: var(--sidenote-margin)  calc(-1 * var(--sidenote-width) - var(--sidenote-margin));
+    --sidenote-margins-r-intrusive: var(--sidenote-margin)  var(--sidenote-edgeout);
+    --sidenote-margins-l-non-intrusive: calc(-1 * var(--sidenote-width) - var(--sidenote-margin))  var(--sidenote-margin);
+    --sidenote-margins-l-intrusive: var(--sidenote-edgeout)  calc(var(--sidenote-margin) + 1rem);
+    /* when sidenote position is left, margin-right has to be larger to avoid overlap with main text bullet points */
+}

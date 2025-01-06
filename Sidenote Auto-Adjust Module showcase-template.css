@@ -1,0 +1,113 @@
+/* Sidenote Auto-Adjust Module showcase-template.css */
+/* author: cerenkov */
+
+/* Say, if you're going to create a my-custom-style-sidenote-using-SAAM.css snippet
+you choose the way how sidenotes are designed to generate:
+  * by using a custom class: <span class=my-custom-sidenote> sidenote content </span>, or
+  * by using a custom callout-type: > [!my-custom-sidenote|my-metadata-modifier]
+you should prepare three variants: my-custom-sidenote-r for right, my-custom-sidenote-l for left and my-custom-sidenote for default
+(custom names in lowercases recommended, since the obsidian callout plugin generates HTML elements with lowercase attributes)
+then you design your custom styling: fonts, colors, backgrounds... for your .my-custom-sidenote class elements or your .callout class elements 
+then you copy-paste the positioning part and replace with your own class selectors */
+
+/* showcase-template: styling part */
+
+/* Say, if you choose to use the >[!my-custom-sidenote] callout implementation */
+/* here's the common styling for all three variants [data-callout|="my-custom-sidenote"] */
+.callout[data-callout|="my-custom-sidenote"] {
+    .callout-title {
+        display: none;
+    }
+    --p-spacing: 0;
+    margin-block: 0;
+    color: blue;
+}
+.cm-callout:has(.callout[data-callout|="my-custom-sidenote"]) > .edit-block-button {
+    display: none;
+}
+/* need higher specificity to override obsidian app's !important property */
+.markdown-source-view.mod-cm6 .cm-content > .cm-callout[contenteditable=false]:has(.callout[data-callout|="my-custom-sidenote"]) {
+    overflow: visible;
+    contain: none !important;
+}
+/* extra shift in Live Preview mode due to callouts syntax requiring an extra empty line */
+.markdown-source-view .callout[data-callout|="my-custom-sidenote"] {
+    margin-top: 2.1em !important;
+}
+
+/* showcase-template: positioning part */
+
+/* you don't need to change the CSS properties below */
+/* just copy-paste and replace the .callout[data-callout="my-custom-sidenote"] 's with your own class selectors */
+/* the variables --sidenote-default-position --sidenote-width --sidenote-edgeout --sidenote-margins-*-* are provided by the Sidenote Auto-Adjust Module */
+.markdown-preview-view, .markdown-source-view {
+    .callout[data-callout="my-custom-sidenote-r"] {
+        position: relative;
+        float: right;
+        clear: right;
+        @container not style(--sidenote-edgeout) {
+            width: var(--sidenote-width);
+            margin-inline: var(--sidenote-margins-r-non-intrusive);
+        }
+        @container style(--sidenote-edgeout) {
+            max-width: var(--sidenote-width);
+            margin-inline: var(--sidenote-margins-r-intrusive);
+        }
+    }
+
+    .callout[data-callout="my-custom-sidenote-l"] {
+        position: relative;
+        float: left;
+        clear: left;
+        @container not style(--sidenote-edgeout) {
+            width: var(--sidenote-width);
+            margin-inline: var(--sidenote-margins-l-non-intrusive);
+        }
+        @container style(--sidenote-edgeout) {
+            max-width: var(--sidenote-width);
+            margin-inline: var(--sidenote-margins-l-intrusive);
+        }
+    }
+
+    .callout[data-callout="my-custom-sidenote"] {
+        position: relative;
+        float: var(--sidenote-default-position);
+        clear: var(--sidenote-default-position);
+        @container not style(--sidenote-edgeout) {
+            width: var(--sidenote-width);
+            @container style(--sidenote-default-position: right) {
+                margin-inline: var(--sidenote-margins-r-non-intrusive);
+            }
+            @container style(--sidenote-default-position: left) {
+                margin-inline: var(--sidenote-margins-l-non-intrusive);
+            }
+        }
+        @container style(--sidenote-edgeout) {
+            max-width: var(--sidenote-width);
+            @container style(--sidenote-default-position: right) {
+                margin-inline: var(--sidenote-margins-r-intrusive);
+            }
+            @container style(--sidenote-default-position: left) {
+                margin-inline: var(--sidenote-margins-l-intrusive);
+            }
+        }
+    }
+}
+
+/* showcase-template: fallback values part (when not working with the Sidenote Auto-Adjust Module) */
+/* these lines can be deleted if it's assured to be working with the Sidenote Auto-Adjust Module */
+
+/* the showcase-template also works on its own without the Sidenote Auto-Adjust Module, with variables taking fallback values */
+/* if at the same time, the SAAM.css snippet is also enabled, then the module overrides these variables, and you'll get auto-adjusting sidenotes */
+/* otherwise when SAAM.css is toggled off, you'll get fixed-width my-custom-sidenotes */
+:root {
+    --sidenote-default-position: right;
+    --sidenote-width: 15rem;
+    --sidenote-margin: 1rem;
+    --sidenote-edgeout: unset;
+    --sidenote-margins-r-non-intrusive: var(--sidenote-margin)  calc(-1 * var(--sidenote-width) - var(--sidenote-margin));
+    --sidenote-margins-r-intrusive: var(--sidenote-margin)  var(--sidenote-edgeout);
+    --sidenote-margins-l-non-intrusive: calc(-1 * var(--sidenote-width) - var(--sidenote-margin))  var(--sidenote-margin);
+    --sidenote-margins-l-intrusive: var(--sidenote-edgeout)  calc(var(--sidenote-margin) + 1rem);
+    /* when sidenote position is left, margin-right has to be larger to avoid overlap with main text bullet points */
+}

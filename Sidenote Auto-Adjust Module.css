@@ -1,0 +1,405 @@
+/* Sidenote Auto-Adjust Module */
+/* author: cerenkov */
+/* Important: This Module Does Not Work Alone */
+/* This CSS snippet simply provides Auto-Adjusting features that can be used by other styling snippets that can be independently toggled on/off */
+/* e.g. Sidenote-in-Tufte-Style-using-SAAM.css or Stickynote-in-Callout-Style-using-SAAM.css */
+/* But you can merge those snippets with this module.css after you have tried them out and decided what suited you the best */
+
+/*
+  The benefit of separating other styling snippets from this module is that you can enjoy different styles of sidenotes/stickynotes simultaneously, and that you can avoid class-name keyword conflict between several sidenote snippets by toggling off the style snippet instead of this module.
+  Also, when you write your own sidenote style, you can let Sidenote Auto-Adjust Module take care of the auto-width and positioning for you.
+  The Auto-Adjust feature includes:
+    * For the default theme, where the default line width is 700px, it allows 350px-width sidenotes on both left and right sides when the visible space is larger than 1400px
+      * Besides the wide (350px), the same logic also applies to the medium (262.5px) and the narrow (175px)
+      * When the visible space is not enough for the narrow sidenotes, it'll place the sidenotes intrusively into the main document with a configurable width (200px)
+    * As for the Minimal theme, where the default line width is 40rem, the options are the wide (20rem), the medium (15rem), the narrow (10rem) and the intrusive width (13rem)
+      * If the helper-class "wide" is added to the note's special property "cssclasses", changing the line width to 50rem, then another set of conditions will apply accordingly
+      * If the helper-class "max" is added, changing the line width to 88%, then the sidenotes can only be intrusive with a configurable width (20rem)
+    * If the Editor > Readable Line Length option is toggled off, changing the line width to effectively 100%, then the sidenotes can only be intrusive with a configurable width (25rem)
+  The values of those intrusive widths can be customized in the Style Settings plugin, along with the sidenote-margin and the default-position.
+  The default-position decides when other styling snippets define three variants (e.g. sidenote-r sidenote-l and sidenote), whether the default variant should generate a sidenote on the right or on the left side.
+  This module also provide an Auto-Positioning feature:
+    * If a helper-class "leftsided"/"rightsided" is added to the note's special property "cssclasses", then the left/right margin of the document line will be reduced to 0, shifting the whole text to one side, leaving more spaces for sidenotes
+    * At the same time, the default-position of the default variant sidenote will be set accordingly to the right/left
+    * When the document is one-sided, the Auto-Adjust sets of conditions change accordingly:
+      * e.g. for the default theme with 700px line-width, only 1050px of visible space will be needed to contain a 350px wide sidenote
+  Problems that are not yet completely resolved:
+    * I had to use @container style(--file-margins: 32px) queries to distinguish default theme usage from Minimal theme usage, which might not be exact for all possible scenarios. See: https://forum.obsidian.md/t/how-can-css-snippets-be-aware-of-minimal-theme-for-compatibility/89736
+    * Lots of repetitive code lines due to the fact that @container size-queries don't support var() function
+    * For the same reason, values of --file-line-width, --line-width, --sidenote-margin and line-numbers' padding spaces are also hardcoded in the @container size-queries
+  Lastly, like Tufte, sidenote-width is designed to be at most 50% of article line-width and will not expand to fill all available spaces. If you want to put lots of images, tables or lists in it, with headers, background-colors and lengthy paragraphs, maybe you're looking for something else (navigation sidebar, infobox, etc.) instead of sidenotes.
+*/
+
+/* @settings
+
+name: Sidenote Auto-Adjust Module
+id: sidenote-auto-adjust-module
+settings:
+  - 
+    id: my-info-text
+    title: "Important: This Module Does Not Work Alone, Unless You Merge Other Snippets With This One"
+    title.zh: "注意：本模块不能单独起效，你需要启用其他 CSS 代码片段，除非你手动把那些别的代码片段合并进来"
+    description: ==You need to enable other sidenote styling snippets that use auto-adjusting features provided by this module, e.g., Sidenote-in-Tufte-Style-using-SAAM.css or Stickynote-in-Callout-Style-using-SAAM.css.== You can also toggle on/off those styles independently, to enjoy different styles of sidenotes/stickynotes simultaneously, and to avoid class-name keyword conflict between several sidenote snippets. You can even write your own sidenote style, and let Sidenote Auto-Adjust Module take care of the auto-width and positioning for you.
+    description.zh: ==你需要启用例如 Sidenote-in-Tufte-Style-using-SAAM.css 或 Stickynote-in-Callout-Style-using-SAAM.css 的其他代码片段，让它们来调用本模块提供的自适应宽度功能。==你还可以独立启用/禁用它们，在一个笔记内同时使用不同的 sidenote 风格和 stickynote 风格，这也是为了避免与网上别的 sidenote CSS 代码片段产生关键字冲突。 SAAM 也方便你自己写自定义风格的 sidenote CSS 代码片段，让本模块来提供自适应宽度和位置。
+    type: info-text
+    markdown: true
+  -
+    id: sidenote-default-position
+    title: Sidenote default position for non-specified classes
+    title.zh: 默认类型的 sidenote 类的展示位置
+    description: For example, the styling snippet Sidenote-in-Tufte-Style-using-SAAM.css provides three variants [!sidenote-r] [!sidenote-l] [!sidenote] to generate a sidenote on the right, left or default position. This option is to decide where the default is.
+    description.zh: 例如， Sidenote-in-Tufte-Style-using-SAAM.css 代码片段提供了三种语法变体 [!sidenote-r] [!sidenote-l] [!sidenote] ，分别可渲染成右边、左边和默认位置的 sidenote 。此选项就是用于指定默认位置。
+    type: variable-select
+    default: right
+    options:
+        - right
+        - left
+  -
+    id: sidenote-margin
+    title: Sidenote margin (spacing between the sidenote and the document)
+    title.zh: sidenote 与文档正文区域的间距
+    description: In most configurations, 1rem = 16px is roughly the size of one character/symbol (font-size)
+    description.zh: 按通常的设置， 1rem = 16px 大约是一个字符的大小（font-size）
+    type: variable-text
+    default: 1rem
+  -
+    id: sidenote-intrusive-width-notRLW
+    title: Sidenote intrusive-width when Editor > Readable Line Width option is off
+    title.zh: 当 编辑器 > 缩减栏宽 选项是关闭时，侵入性 sidenote 的宽度
+    type: variable-text
+    default: 25rem
+  -
+    id: sidenote-intrusive-width-RLW-default-theme
+    title: Sidenote intrusive-width in the default theme when Editor > Readable Line Width option is off
+    title.zh: 当 编辑器 > 缩减栏宽 选项是打开时，默认主题时的侵入性 sidenote 的宽度
+    type: variable-text
+    default: 200px
+  -
+    id: sidenote-intrusive-width-RLW-minimal-theme-default
+    title: Sidenote intrusive-width in the Minimal theme when Editor > Readable Line Width option is off
+    title.zh: 当 编辑器 > 缩减栏宽 选项是打开时，Minimal 主题时的侵入性 sidenote 的宽度
+    type: variable-text
+    default: 13rem
+  -
+    id: sidenote-intrusive-width-RLW-minimal-theme-wide
+    title: Sidenote intrusive-width in the Minimal theme with "wide" helper-class when Editor > Readable Line Width option is off
+    title.zh: 当 编辑器 > 缩减栏宽 选项是打开时，Minimal 主题使用 "wide" helper-class 的时候的侵入性 sidenote 的宽度
+    type: variable-text
+    default: 13rem
+  -
+    id: sidenote-intrusive-width-RLW-minimal-theme-max
+    title: Sidenote intrusive-width in the Minimal theme with "max" helper-class when Editor > Readable Line Width option is off
+    title.zh: 当 编辑器 > 缩减栏宽 选项是打开时，Minimal 主题使用 "max" helper-class 的时候的侵入性 sidenote 的宽度
+    type: variable-text
+    default: 20rem
+*/
+
+
+/* configurations that can be customized in the Style Settings plugin */
+body {
+    --sidenote-default-position: right;
+    --sidenote-width: 15rem;
+    --sidenote-edgeout: unset;
+    --sidenote-margin: 1rem;
+    --sidenote-intrusive-width-notRLW: 25rem;
+    --sidenote-intrusive-width-RLW-default-theme: 200px;
+    --sidenote-intrusive-width-RLW-minimal-theme-default: 13rem;
+    --sidenote-intrusive-width-RLW-minimal-theme-wide: 13rem;
+    --sidenote-intrusive-width-RLW-minimal-theme-max: 20rem;
+}
+
+
+/* store inline margins on line blocks */
+
+.markdown-preview-view .markdown-preview-sizer >div,
+.markdown-source-view .cm-content >div {
+    --sidenote-margins-r-non-intrusive: var(--sidenote-margin)  calc(-1 * var(--sidenote-width) - var(--sidenote-margin));
+    --sidenote-margins-r-intrusive: var(--sidenote-margin)  var(--sidenote-edgeout);
+    --sidenote-margins-l-non-intrusive: calc(-1 * var(--sidenote-width) - var(--sidenote-margin))  var(--sidenote-margin);
+    --sidenote-margins-l-intrusive: var(--sidenote-edgeout)  calc(var(--sidenote-margin) + 1rem);
+    /* when sidenote position is left, margin-right has to be larger to avoid overlap with main text bullet points */
+}
+
+
+/* use container to determine available spaces for sidenotes */
+.markdown-reading-view, .markdown-source-view {
+    container-name: PageContainer;
+    container-type: inline-size;
+}
+
+
+/* assign values to --sidenote-width and --sidenote-edgeout variables based on cases */
+
+/* when Readable Line Width is off */
+
+.markdown-preview-view:not(.is-readable-line-width) .markdown-preview-sizer >div,
+.markdown-source-view:not(.is-readable-line-width) .cm-content >div {
+    --sidenote-width: min(var(--sidenote-intrusive-width-notRLW), 50%);
+    --sidenote-edgeout: -2rem;
+}
+
+/* when Readable Line Width is on */
+
+/* when the current document is not one-sided */
+
+/* cases that are independent of .minimal-line-nums on/off */
+.markdown-preview-view.is-readable-line-width:not(.leftsided):not(.rightsided) .markdown-preview-sizer >div,
+.markdown-source-view.is-readable-line-width:not(.leftsided):not(.rightsided) .cm-content >div {
+    /* when default theme is active, --file-line-width is 700px */
+    @container PageContainer style(--file-margins: 32px) or (not style(--line-width)) {
+        /* compare the visible width to file-line-width + (sidenote-width + sidenote-margin) * 2 + scrollbar-width */
+        @container PageContainer (calc(700px + (350px + 1rem) * 2 + 10px) <= width) {
+            --sidenote-width: 350px;
+        }
+        @container PageContainer (calc(700px + (262.5px + 1rem) * 2 + 10px) <= width < calc(700px + (350px + 1rem) * 2 + 10px)) {
+            --sidenote-width: 262.5px;
+        }
+        @container PageContainer (calc(700px + (175px + 1rem) * 2 + 10px) <= width < calc(700px + (262.5px + 1rem) * 2 + 10px)) {
+            --sidenote-width: 175px;
+        }
+        @container PageContainer (                                           width < calc(700px + (175px + 1rem) * 2 + 10px)) {
+            --sidenote-width: min(var(--sidenote-intrusive-width-RLW-default-theme), 50%);
+            --sidenote-edgeout: -2rem;
+        }
+    }
+    /* when minimal-theme is active */
+    @container PageContainer (not style(--file-margins: 32px)) and style(--line-width) {
+        /* minimal-theme .max class line-width */
+        @container style(--line-width: 88%) {
+            --sidenote-width: min(var(--sidenote-intrusive-width-RLW-minimal-theme-max), 50%);
+            --sidenote-edgeout: -6.8%;
+        }
+    }
+}
+/* cases of minimal-theme with .minimal-line-nums on */
+body.minimal-line-nums .markdown-preview-view.is-readable-line-width:not(.leftsided):not(.rightsided) .markdown-preview-sizer >div,
+body.minimal-line-nums .markdown-source-view.is-readable-line-width:not(.leftsided):not(.rightsided) .cm-content >div {
+    /* when minimal-theme is active */
+    @container PageContainer (not style(--file-margins: 32px)) and style(--line-width) {
+        /* minimal-theme default line-width */
+        @container style(--line-width: 40rem) {
+            /* compare the visible width to line-numbers-width + line-width + (sidenote-width + sidenote-margin) * 2 + scrollbar-width */
+            @container PageContainer (calc(2rem + 40rem + (20rem + 1rem) * 2 + 10px) <= width) {
+                --sidenote-width: 20rem;
+            }
+            @container PageContainer (calc(2rem + 40rem + (15rem + 1rem) * 2 + 10px) <= width < calc(2rem + 40rem + (20rem + 1rem) * 2 + 10px)) {
+                --sidenote-width: 15rem;
+            }
+            @container PageContainer (calc(2rem + 40rem + (10rem + 1rem) * 2 + 10px) <= width < calc(2rem + 40rem + (15rem + 1rem) * 2 + 10px)) {
+                --sidenote-width: 10rem;
+            }
+            @container PageContainer (                                                  width < calc(2rem + 40rem + (10rem + 1rem) * 2 + 10px)) {
+                --sidenote-width: min(var(--sidenote-intrusive-width-RLW-minimal-theme-default), 50%);
+                --sidenote-edgeout: -6.8%;
+            }
+        }
+        /* minimal-theme .wide class line-width */
+        @container style(--line-width: 50rem) {
+            /* compare the visible width to line-numbers-width + line-width + (sidenote-width + sidenote-margin) * 2 + scrollbar-width */
+            @container PageContainer (calc(2rem + 50rem + (20rem + 1rem) * 2 + 10px) <= width) {
+                --sidenote-width: 20rem;
+            }
+            @container PageContainer (calc(2rem + 50rem + (15rem + 1rem) * 2 + 10px) <= width < calc(2rem + 50rem + (20rem + 1rem) * 2 + 10px)) {
+                --sidenote-width: 15rem;
+            }
+            @container PageContainer (calc(2rem + 50rem + (10rem + 1rem) * 2 + 10px) <= width < calc(2rem + 50rem + (15rem + 1rem) * 2 + 10px)) {
+                --sidenote-width: 10rem;
+            }
+            @container PageContainer (                                                  width < calc(2rem + 50rem + (10rem + 1rem) * 2 + 10px)) {
+                --sidenote-width: min(var(--sidenote-intrusive-width-RLW-minimal-theme-wide), 50%);
+                --sidenote-edgeout: -6.8%;
+            }
+        }
+    }
+}
+/* cases of minimal-theme with .minimal-line-nums off */
+body:not(.minimal-line-nums) .markdown-preview-view.is-readable-line-width:not(.leftsided):not(.rightsided) .markdown-preview-sizer >div,
+body:not(.minimal-line-nums) .markdown-source-view.is-readable-line-width:not(.leftsided):not(.rightsided) .cm-content >div {
+    /* when minimal-theme is active */
+    @container PageContainer (not style(--file-margins: 32px)) and style(--line-width) {
+        /* minimal-theme default line-width */
+        @container style(--line-width: 40rem) {
+            /* compare the visible width to line-width + (sidenote-width + sidenote-margin) * 2 + scrollbar-width */
+            @container PageContainer (calc(40rem + (20rem + 1rem) * 2 + 10px) <= width) {
+                --sidenote-width: 20rem;
+            }
+            @container PageContainer (calc(40rem + (15rem + 1rem) * 2 + 10px) <= width < calc(40rem + (20rem + 1rem) * 2 + 10px)) {
+                --sidenote-width: 15rem;
+            }
+            @container PageContainer (calc(40rem + (10rem + 1rem) * 2 + 10px) <= width < calc(40rem + (15rem + 1rem) * 2 + 10px)) {
+                --sidenote-width: 10rem;
+            }
+            @container PageContainer (                                           width < calc(40rem + (10rem + 1rem) * 2 + 10px)) {
+                --sidenote-width: min(var(--sidenote-intrusive-width-RLW-minimal-theme-default), 50%);
+                --sidenote-edgeout: -6.8%;
+            }
+        }
+        /* minimal-theme .wide class line-width */
+        @container style(--line-width: 50rem) {
+            /* compare the visible width to line-width + (sidenote-width + sidenote-margin) * 2 + scrollbar-width */
+            @container PageContainer (calc(50rem + (20rem + 1rem) * 2 + 10px) <= width) {
+                --sidenote-width: 20rem;
+            }
+            @container PageContainer (calc(50rem + (15rem + 1rem) * 2 + 10px) <= width < calc(50rem + (20rem + 1rem) * 2 + 10px)) {
+                --sidenote-width: 15rem;
+            }
+            @container PageContainer (calc(50rem + (10rem + 1rem) * 2 + 10px) <= width < calc(50rem + (15rem + 1rem) * 2 + 10px)) {
+                --sidenote-width: 10rem;
+            }
+            @container PageContainer (                                           width < calc(50rem + (10rem + 1rem) * 2 + 10px)) {
+                --sidenote-width: min(var(--sidenote-intrusive-width-RLW-minimal-theme-wide), 50%);
+                --sidenote-edgeout: -6.8%;
+            }
+        }
+    }
+}
+
+/* when the current document is leftsided/rightsided */
+
+/* cases that are independent of .minimal-line-nums on/off */
+.markdown-preview-view.is-readable-line-width:is(.leftsided, .rightsided) .markdown-preview-sizer >div,
+.markdown-source-view.is-readable-line-width:is(.leftsided, .rightsided) .cm-content >div {
+    /* when default theme is active, --file-line-width is 700px */
+    @container PageContainer style(--file-margins: 32px) or (not style(--line-width)) {
+        /* compare the visible width to file-margin-left + file-line-width + sidenote-margin + sidenote-width + scrollbar-width */
+        @container PageContainer (calc(2rem + 700px + 1rem + 350px + 10px) <= width) {
+            --sidenote-width: 350px;
+        }
+        @container PageContainer (calc(2rem + 700px + 1rem + 262.5px + 10px) <= width < calc(2rem + 700px + 1rem + 350px + 10px)) {
+            --sidenote-width: 262.5px;
+        }
+        @container PageContainer (calc(2rem + 700px + 1rem + 175px + 10px) <= width < calc(2rem + 700px + 1rem + 262.5px + 10px)) {
+            --sidenote-width: 175px;
+        }
+        @container PageContainer (                                            width < calc(2rem + 700px + 1rem + 175px + 10px)) {
+            --sidenote-width: min(var(--sidenote-intrusive-width-RLW-default-theme), 50%);
+            --sidenote-edgeout: -2rem;
+        }
+    }
+    /* when minimal-theme is active */
+    @container PageContainer (not style(--file-margins: 32px)) and style(--line-width) {
+        /* minimal-theme .max class line-width */
+        @container style(--line-width: 88%) {
+            --sidenote-width: min(var(--sidenote-intrusive-width-RLW-minimal-theme-max), 50%);
+            --sidenote-edgeout: calc(-13.6% + 1rem);
+        }
+    }
+}
+/* cases of minimal-theme with .minimal-line-nums on */
+body.minimal-line-nums .markdown-preview-view.is-readable-line-width:is(.leftsided, .rightsided) .markdown-preview-sizer >div,
+body.minimal-line-nums .markdown-source-view.is-readable-line-width:is(.leftsided, .rightsided) .cm-content >div {
+    /* when minimal-theme is active */
+    @container PageContainer (not style(--file-margins: 32px)) and style(--line-width) {
+        /* minimal-theme default line-width */
+        @container style(--line-width: 40rem) {
+            /* compare the visible width to line-numbers-width + minimal-extra-margin + line-width + sidenote-margin + sidenote-width + scrollbar-width */
+            @container PageContainer (calc(2rem + 1rem + 40rem + 1rem + 20rem + 10px) <= width) {
+                --sidenote-width: 20rem;
+            }
+            @container PageContainer (calc(2rem + 1rem + 40rem + 1rem + 15rem + 10px) <= width < calc(2rem + 1rem + 40rem + 1rem + 20rem + 10px)) {
+                --sidenote-width: 15rem;
+            }
+            @container PageContainer (calc(2rem + 1rem + 40rem + 1rem + 10rem + 10px) <= width < calc(2rem + 1rem + 40rem + 1rem + 15rem + 10px)) {
+                --sidenote-width: 10rem;
+            }
+            @container PageContainer (                                                   width < calc(2rem + 1rem + 40rem + 1rem + 10rem + 10px)) {
+                --sidenote-width: min(var(--sidenote-intrusive-width-RLW-minimal-theme-default), 50%);
+                --sidenote-edgeout: calc(-13.6% + 1rem);
+            }
+        }
+        /* minimal-theme .wide class line-width */
+        @container style(--line-width: 50rem) {
+            /* compare the visible width to line-numbers-width + minimal-extra-margin + line-width + sidenote-margin + sidenote-width + scrollbar-width */
+            @container PageContainer (calc(2rem + 1rem + 50rem + 1rem + 20rem + 10px) <= width) {
+                --sidenote-width: 20rem;
+            }
+            @container PageContainer (calc(2rem + 1rem + 50rem + 1rem + 15rem + 10px) <= width < calc(2rem + 1rem + 50rem + 1rem + 20rem + 10px)) {
+                --sidenote-width: 15rem;
+            }
+            @container PageContainer (calc(2rem + 1rem + 50rem + 1rem + 10rem + 10px) <= width < calc(2rem + 1rem + 50rem + 1rem + 15rem + 10px)) {
+                --sidenote-width: 10rem;
+            }
+            @container PageContainer (                                                   width < calc(2rem + 1rem + 50rem + 1rem + 10rem + 10px)) {
+                --sidenote-width: min(var(--sidenote-intrusive-width-RLW-minimal-theme-wide), 50%);
+                --sidenote-edgeout: calc(-13.6% + 1rem);
+            }
+        }
+    }
+}
+/* cases of minimal-theme with .minimal-line-nums off */
+body:not(.minimal-line-nums) .markdown-preview-view.is-readable-line-width:is(.leftsided, .rightsided) .markdown-preview-sizer >div,
+body:not(.minimal-line-nums) .markdown-source-view.is-readable-line-width:is(.leftsided, .rightsided) .cm-content >div {
+    /* when minimal-theme is active */
+    @container PageContainer (not style(--file-margins: 32px)) and style(--line-width) {
+        /* minimal-theme default line-width */
+        @container style(--line-width: 40rem) {
+            /* compare the visible width to minimal-extra-margin + line-width + sidenote-margin + sidenote-width + scrollbar-width */
+            @container PageContainer (calc(1rem + 40rem + 1rem + 20rem + 10px) <= width) {
+                --sidenote-width: 20rem;
+            }
+            @container PageContainer (calc(1rem + 40rem + 1rem + 15rem + 10px) <= width < calc(1rem + 40rem + 1rem + 20rem + 10px)) {
+                --sidenote-width: 15rem;
+            }
+            @container PageContainer (calc(1rem + 40rem + 1rem + 10rem + 10px) <= width < calc(1rem + 40rem + 1rem + 15rem + 10px)) {
+                --sidenote-width: 10rem;
+            }
+            @container PageContainer (                                            width < calc(1rem + 40rem + 1rem + 10rem + 10px)) {
+                --sidenote-width: min(var(--sidenote-intrusive-width-RLW-minimal-theme-default), 50%);
+                --sidenote-edgeout: calc(-13.6% + 1rem);
+            }
+        }
+        /* minimal-theme .wide class line-width */
+        @container style(--line-width: 50rem) {
+            /* compare the visible width to minimal-extra-margin + line-width + sidenote-margin + sidenote-width + scrollbar-width */
+            @container PageContainer (calc(1rem + 50rem + 1rem + 20rem + 10px) <= width) {
+                --sidenote-width: 20rem;
+            }
+            @container PageContainer (calc(1rem + 50rem + 1rem + 15rem + 10px) <= width < calc(1rem + 50rem + 1rem + 20rem + 10px)) {
+                --sidenote-width: 15rem;
+            }
+            @container PageContainer (calc(1rem + 50rem + 1rem + 10rem + 10px) <= width < calc(1rem + 50rem + 1rem + 15rem + 10px)) {
+                --sidenote-width: 10rem;
+            }
+            @container PageContainer (                                            width < calc(1rem + 50rem + 1rem + 10rem + 10px)) {
+                --sidenote-width: min(var(--sidenote-intrusive-width-RLW-minimal-theme-wide), 50%);
+                --sidenote-edgeout: calc(-13.6% + 1rem);
+            }
+        }
+    }
+}
+
+
+/* if the current document has leftsided/rightsided cssclasses, move sidenote's default position correspondingly to the right/left */
+.markdown-source-view.leftsided, .markdown-preview-view.leftsided {
+    --sidenote-default-position: right;
+}
+.markdown-source-view.rightsided, .markdown-preview-view.rightsided {
+    --sidenote-default-position: left;
+}
+
+/* when Readable Line Width is on, move the document texts leftsided/rightsided */
+.markdown-source-view.mod-cm6.is-readable-line-width.leftsided .cm-sizer,
+.markdown-preview-view.is-readable-line-width.leftsided .markdown-preview-sizer {
+    margin-left: 0rem;
+}
+.markdown-source-view.mod-cm6.is-readable-line-width.rightsided .cm-sizer,
+.markdown-preview-view.is-readable-line-width.rightsided .markdown-preview-sizer {
+    margin-right: 0rem;
+}
+/* minimal-theme compatibility: need higher specificity to override minimal-theme's !important property */
+@container PageContainer (not style(--file-margins: 32px)) and style(--line-width) {
+    .markdown-preview-view.is-readable-line-width.leftsided .markdown-preview-sizer>div,
+    .markdown-source-view.mod-cm6.is-readable-line-width.leftsided .cm-contentContainer.cm-contentContainer>.cm-content>div,
+    .markdown-source-view.mod-cm6.is-readable-line-width.leftsided .cm-sizer>.embedded-backlinks,
+    .markdown-source-view.mod-cm6.is-readable-line-width.leftsided .cm-sizer>.inline-title,
+    .markdown-source-view.mod-cm6.is-readable-line-width.leftsided .cm-sizer>.metadata-container {
+        margin-left: 1rem !important;  /* need extra margin between line numbers (or the left border when line number is off) and main texts due to minimal-theme-modified layouts */
+    }
+    .markdown-preview-view.is-readable-line-width.rightsided .markdown-preview-sizer>div,
+    .markdown-source-view.mod-cm6.is-readable-line-width.rightsided .cm-contentContainer.cm-contentContainer>.cm-content>div,
+    .markdown-source-view.mod-cm6.is-readable-line-width.rightsided .cm-sizer>.embedded-backlinks,
+    .markdown-source-view.mod-cm6.is-readable-line-width.rightsided .cm-sizer>.inline-title,
+    .markdown-source-view.mod-cm6.is-readable-line-width.rightsided .cm-sizer>.metadata-container {
+        margin-right: 1rem !important;  /* for consistency */
+    }
+}
