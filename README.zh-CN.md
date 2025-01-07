@@ -129,6 +129,12 @@ May the force be with you<sup>[1]</sup>
 
 默认位置可以通过 Style Settings 插件设置成全局的靠右或靠左，而对于每一个文档，可以通过给文档属性添加本模块设计的 'leftsided' / 'rightsided' 类（cssclasses），来将文档正文向左/右推移，并同时将边注的默认位置改为靠右/靠左。
 
+## 快速插入边注
+
+在 `templates for quick insert` 路径下，提供了四个模板文件，可以和 Templater 插件一起用，以便在光标位置插入边注（sidenote）或便利贴（stickynote）。还可以为这些模板设置快捷键。灵感来自于 [鱼先生的模块化Obsidian](https://www.bilibili.com/video/BV1zj6iYuEMp)。
+
+别忘了将 Templater 插件的 'Automatic jump to cursor' 选项打开。
+
 ## Style Settings
 
 使用 [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) 插件，你可以不用动代码就能修改以下全局设置：

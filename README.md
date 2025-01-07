@@ -131,6 +131,12 @@ Each syntax have three variants for right, left and default:
 
 The default position can be set to left/right in the Style Settings globally across all documents, while for each document, a SAAM-specified helper-class 'leftsided' / 'rightsided' would shift that document to the left/right and set the stickynote default position to the right/left accordingly.
 
+## Quick Insert
+
+Under the `templates for quick insert` folder, you can find four templates that can be used with the Templater plugin to insert sidenotes/stickynotes at the cursor position. You can also assign hotkeys to them. Inspiration from [鱼先生的模块化Obsidian](https://www.bilibili.com/video/BV1zj6iYuEMp).
+
+Don't forget to switch on the 'Automatic jump to cursor' option of the Templater plugin.
+
 ## Style Settings
 
 With the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin, you can change these global settings without altering the code:
