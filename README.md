@@ -148,3 +148,14 @@ With the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) p
 - the intrusive-width when the 'Readable Line Length' option is on and the Minimal theme is activated
 - the intrusive-width when the 'Readable Line Length' option is on and the Minimal theme is activated and the document has a 'wide' helper-class
 - the intrusive-width when the 'Readable Line Length' option is on and the Minimal theme is activated and the document has a 'max' helper-class
+
+## Changelog
+
+### 2025.08.19
+- Fix compatibility issues with [Callout manager](https://github.com/eth-p/obsidian-callout-manager) and [Callout suggestions](https://github.com/cwfryer/obsidian-callout-suggestions) ([#1](https://github.com/crnkv/obsidian-sidenote-auto-adjust-module/issues/1))
+
+### 2025.01.07
+- Add quick-insert templates
+
+### 2025.01.06
+- Initial commit

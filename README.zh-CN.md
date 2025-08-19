@@ -146,3 +146,14 @@ May the force be with you<sup>[1]</sup>
 - 当“缩减栏宽”选项开启、且使用 Minimal 主题时，侵入式排版允许让边注挤占正文区域的空间大小
 - 当“缩减栏宽”选项开启、且使用 Minimal 主题、且当前文档属性添加了 'wide' 类时，侵入式排版允许让边注挤占正文区域的空间大小
 - 当“缩减栏宽”选项开启、且使用 Minimal 主题、且当前文档属性添加了 'max' 类时，侵入式排版允许让边注挤占正文区域的空间大小
+
+## Changelog
+
+### 2025.08.19
+- 修复与 [Callout manager](https://github.com/eth-p/obsidian-callout-manager) 和 [Callout suggestions](https://github.com/cwfryer/obsidian-callout-suggestions) 冲突的问题 ([#1](https://github.com/crnkv/obsidian-sidenote-auto-adjust-module/issues/1))
+
+### 2025.01.07
+- 增加用于快速插入边注的模板
+
+### 2025.01.06
+- 初始版本

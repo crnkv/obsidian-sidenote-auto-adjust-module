@@ -34,18 +34,20 @@
 /* [!stickynote] callouts: strip away title and spacing and the edit button, keep background and paddings */
 /* [!info|aside] callouts: keep all callout features, only hide the edit button */
 /* Tufte-style means smaller font-size, minimal margins and paddings, whereas Callout-style inherits normal font-size and broader paddings */
-.callout[data-callout|="stickynote"] {
-    .callout-title {
+.markdown-preview-view, .markdown-source-view {
+    .callout[data-callout|="stickynote"] {
+        .callout-title {
+            display: none;
+        }
+        --p-spacing: 0;
+        margin-block: 0;
+    }
+    .cm-callout:has(
+        .callout[data-callout|="stickynote"],
+        .callout[data-callout-metadata~="aside"], .callout[data-callout-metadata~="aside-r"], .callout[data-callout-metadata~="aside-l"]
+    ) > .edit-block-button {
         display: none;
     }
-    --p-spacing: 0;
-    margin-block: 0;
-}
-.cm-callout:has(
-    .callout[data-callout|="stickynote"],
-    .callout[data-callout-metadata~="aside"], .callout[data-callout-metadata~="aside-r"], .callout[data-callout-metadata~="aside-l"]
-) > .edit-block-button {
-    display: none;
 }
 /* need higher specificity to override obsidian app's !important property */
 .markdown-source-view.mod-cm6 .cm-content > .cm-callout[contenteditable=false]:has(
@@ -56,11 +58,11 @@
     contain: none !important;
 }
 /* extra shift in Live Preview mode due to callouts syntax requiring an extra empty line */
-.markdown-source-view :is(
+.markdown-source-view {
     .callout[data-callout|="stickynote"],
-    .callout[data-callout-metadata~="aside"], .callout[data-callout-metadata~="aside-r"], .callout[data-callout-metadata~="aside-l"]
-) {
-    margin-top: 2.1em;
+    .callout[data-callout-metadata~="aside"], .callout[data-callout-metadata~="aside-r"], .callout[data-callout-metadata~="aside-l"] {
+        margin-top: 2.1em;
+    }
 }
 
 /* positioning part */

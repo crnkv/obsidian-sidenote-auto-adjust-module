@@ -14,16 +14,18 @@ then you copy-paste the positioning part and replace with your own class selecto
 
 /* Say, if you choose to use the >[!my-custom-sidenote] callout implementation */
 /* here's the common styling for all three variants [data-callout|="my-custom-sidenote"] */
-.callout[data-callout|="my-custom-sidenote"] {
-    .callout-title {
+.markdown-preview-view, .markdown-source-view {
+    .callout[data-callout|="my-custom-sidenote"] {
+        .callout-title {
+            display: none;
+        }
+        --p-spacing: 0;
+        margin-block: 0;
+        color: blue;
+    }
+    .cm-callout:has(.callout[data-callout|="my-custom-sidenote"]) > .edit-block-button {
         display: none;
     }
-    --p-spacing: 0;
-    margin-block: 0;
-    color: blue;
-}
-.cm-callout:has(.callout[data-callout|="my-custom-sidenote"]) > .edit-block-button {
-    display: none;
 }
 /* need higher specificity to override obsidian app's !important property */
 .markdown-source-view.mod-cm6 .cm-content > .cm-callout[contenteditable=false]:has(.callout[data-callout|="my-custom-sidenote"]) {

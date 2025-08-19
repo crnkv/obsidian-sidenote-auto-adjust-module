@@ -39,17 +39,19 @@
 /* styling part */
 
 /* [!sidenote] callouts: strip away default callout styles and the edit button */
-.callout[data-callout|="sidenote"] {
-    .callout-title {
+.markdown-preview-view, .markdown-source-view {
+    .callout[data-callout|="sidenote"] {
+        .callout-title {
+            display: none;
+        }
+        --p-spacing: 0;
+        margin-block: 0;
+        background-color: transparent;
+        padding: unset;
+    }
+    .cm-callout:has(.callout[data-callout|="sidenote"]) > .edit-block-button {
         display: none;
     }
-    --p-spacing: 0;
-    margin-block: 0;
-    background-color: transparent;
-    padding: unset;
-}
-.cm-callout:has(.callout[data-callout|="sidenote"]) > .edit-block-button {
-    display: none;
 }
 /* need higher specificity to override obsidian app's !important property */
 .markdown-source-view.mod-cm6 .cm-content > .cm-callout[contenteditable=false]:has(.callout[data-callout|="sidenote"]) {
@@ -58,17 +60,19 @@
 }
 /* extra shift in Live Preview mode due to callouts syntax requiring an extra empty line */
 .markdown-source-view .callout[data-callout|="sidenote"] {
-    margin-top: 2.1em;
+    margin-top: 2.1em !important;
 }
 
 /* Tufte-style means smaller font-size, minimal margins and paddings, whereas Callout-style inherits normal font-size and broader paddings */
-.sidenote, .sidenote-r, .sidenote-l, .callout[data-callout|="sidenote"] {
-    margin-top: 0.3em;
-    margin-bottom: 0;
+.markdown-preview-view, .markdown-source-view {
+    .sidenote, .sidenote-r, .sidenote-l, .callout[data-callout|="sidenote"] {
+        margin-top: 0.3em;
+        margin-bottom: 0;
 /*  Tufte-CSS sets a sidenote font-size 0.786 of the paragraph font-size, but since obsidian default article font-size is already much smaller than Tufte, even smaller sidenotes would be uncomfortable, so I make it a bit larger, say, 0.82 */
-    font-size: 0.82em;
-    line-height: 1.3;
-    vertical-align: baseline;
+        font-size: 0.82em;
+        line-height: 1.3;
+        vertical-align: baseline;
+    }
 }
 
 /* positioning part */
